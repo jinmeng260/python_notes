@@ -1,0 +1,154 @@
+第七章 Python异常处理
+
+什么是异常？
+
+一个健壮的程序应该把所能预知的异常都应做相应的处理，应对一些简单的异常情况，使得更好的保证程序长时间运行。
+即使出了问题，也可让维护者一眼看出问题所在。因此本章节讲解的就是怎么处理异常，让你的程序更加健壮。
+
+7.1 捕捉异常语法
+try...except...
+try:
+     expression
+except [Except Type]:
+     expression
+		 
+		 
+7.2 异常类型
+常见的异常类型：
+
+SyntaxError							语法错误
+IndentationError				缩进错误
+TypeError  							对象类型与要求不符合
+ImportError							模块或包导入错误；一般路径或名称错误
+KeyError								字典里面不存在的键
+NameError								变量不存在
+IndexError							下标超出序列范围
+IOError									输入/输出异常；一般是无法打开文件
+AttributeError					对象里没有属性
+KeyboardInterrupt				键盘接受到Ctrl+C
+Exception								通用的异常类型；一般会捕捉所有异常		 
+
+>>> import exceptions
+>>> dir(exceptions)
+
+7.3 异常处理
+例如：打印一个没有定义的变量
+
+使用Exception类型来捕捉所有的异常：
+例如：打印一个类对象里面没有的属性
+>>> class A:
+...   a = 1
+...   b = 2
+
+>>> try:
+...   print c.c
+... except Exception, e:
+...   print "Error: " + str(e)
+...
+Error: A instance has no attribute 'c'
+# 也可以使用as关键字将错误出输出保存到变量中
+>>> try:               
+...   print c.c         
+... except Exception as e:
+...   print "Error: " + str(e)         
+...
+Error: A instance has no attribute 'c'
+
+当出现的异常类型有几种可能性时，可以写多个except：
+>>> try:
+...   print a
+... except NameError, e:
+...   print "NameError: " + str(e)
+... except KeyError, e:
+...   print "KeyError: " + str(e)
+...
+NameError: name 'a' is not defined
+
+注意：except也可以不指定异常类型，那么会忽略所有的异常类，这样做有风险的，它同样会捕捉Ctrl+C、sys.exit等的操作。
+所以使用except Exception更好些。
+
+7.4 else和finally语句
+7.4.1 else语句
+表示如果try中的代码没有引发异常，则会执行else。
+继续按照上面定义的类举例：
+>>> try:    
+...   print c.a
+... except Exception as e:
+...   print e
+... else:
+...   print "else..."
+...
+
+7.4.2 finally语句
+表示无论是否异常，都会执行finally。
+>>> try:    
+...   print c.c
+... except Exception as e:
+...   print e
+... finally:
+...   print "finally..."
+...
+A instance has no attribute 'c'
+finally...
+
+一般用于清理工作，比如打开一个文件，不管是否文件是否操作成功，都应该关闭文件。
+
+7.4.3 try...except...else...finally
+这是一个完整的语句，当一起使用时，使异常处理更加灵活。
+#!/usr/bin/python    
+# -*- coding: utf-8 -*-
+try:
+   print a
+except Exception as e:
+   print "Error: " + str(e)
+else:
+   print "else..."
+finally: 
+   print "finally..."
+         
+# python test.py
+python test.py
+Error: name 'a' is not defined
+finally...
+
+注意的是：它们语句的顺序必须是try...except...else...finally，否则语法错误！里面else和finally是可选的。
+
+7.5 自定义异常类
+raise语句用来手动抛出一个异常，使用方法：
+raise ExceptType(ExceptInfo)
+例如：抛出一个指定的异常
+
+raise参数必须是一个异常的实例或Exception子类。
+上面用的Exception子类，那么我定义一个异常的实例，需要继承Exception类：
+>>> class MyError(Exception):
+...   def __init__(self, value):
+...      self.value = value
+...   def __str__(self):
+...      return self.value
+...
+>>> raise MyError("MyError...")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+__main__.MyError: MyError...
+
+7.6 assert语句
+assert语句用于检查条件表达式是否为真，不为真则触发异常。又称断言语句。
+一般用在某个条件为真才能正常工作。
+>>> assert 1==1
+>>> assert 1!=1
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+AssertionError
+>>> assert range(4)==[0,1,2] 
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+AssertionError
+
+# 添加异常描述信息
+>>> assert 1!=1, "assert description..."
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+AssertionError: assert description...
+
+
+
