@@ -1,0 +1,545 @@
+第六章 Python类（面向对象编程）
+
+什么是面向对象编程？
+面向对象编程（Object Oriented Programming，OOP，面向对象程序设计）是一种计算机编程架构。
+Python就是这种编程语言。
+
+面向对象程序设计中的概念主要包括：对象、类、继承、动态绑定、封装、多态性、消息传递、方法。
+1）对象：类的实体，比如一个人。
+2）类：一个共享相同结构和行为的对象的集合。通俗的讲就是分类，比如人是一类，动物是一类。
+3）继承：类之间的关系，比如猫狗是一类，他们都有四条腿，狗继承了这个四条腿，拥有了这个属性。
+4）动态绑定：在不修改源码情况下，动态绑定方法来给实例增加功能。
+5）封装：把相同功能的类方法、属性封装到类中，比如人两条腿走路，狗有四条腿走路，两个不能封装到一个类中。
+6）多态性：一个功能可以表示不同类的对象，任何对象可以有不同的方式操作。比如一个狗会走路、会跑。
+7）消息传递：一个对象调用了另一个对象的方法。
+8）方法：类里面的函数，也称为成员函数。
+
+对象=属性+方法。
+属性：变量。
+方法：函数。
+实例化：创建一个类的具体实例对象。比如一条泰迪。
+
+什么是类？
+类是对对象的抽象，对象是类的实体，是一种数据类型。它不存在内存中，不能被直接操作，只有被实例化对象时，才会变的可操作。
+类是对现实生活中一类具有共同特征的事物的抽象描述。
+
+6.1 类和类方法语法
+# 类
+class ClassName():
+   pass
+    # 类中的方法
+    def funcName(self):
+      pass
+	  
+self代表类本身。类中的所有的函数的第一个参数必须是self。
+
+6.2 类定义与调用
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+class MyClass():
+    x = 100
+    def func(self, name):
+        return "Hello %s!" % name
+    def func2(self):
+        return self.x
+mc = MyClass()  # 类实例化，绑定到变量mc
+print mc.x      # 类属性引用
+print mc.func("xiaoming")  # 调用类方法
+print mc.func2()
+  
+# python test.py
+100
+Hello xiaoming!
+100
+
+上面示例中，x变量称为类属性，类属性又分为类属性和实例属性：
+1）类属性属于类本身，通过类名访问，一般作为全局变量。比如mc.x
+2）如果类方法想调用类属性，需要使用self关键字调用。比如self.x
+3）实例属性是实例化后对象的方法和属性，通过实例访问，一般作为局部变量
+4）当实例化后可以动态类属性，下面会讲到。
+
+类方法调用：
+1）类方法之间调用：self.<方法名>（参数），参数不需要加self
+2）外部调用：<实例名>.<方法名>
+
+6.3 类的说明
+给类添加注释，提高可阅读性，可以通过下面方式查看。
+方法1：
+>>> class MyClass:
+...   """
+...   这是一个测试类.
+...   """
+...   pass
+...
+>>> print MyClass.__doc__
+  这是一个测试类.
+>>>
+
+方法2：
+>>> help(MyClass)
+Help on class MyClass in module __main__:
+class MyClass
+ |  这是一个测试类.
+ 
+ 
+6.4 类内置方法 
+
+__init__(self, ...)	        初始化对象，在创建新对象时调用
+__del__(self)	            释放对象，在对象被删除之前调用
+__new__(cls, *args, **kwd)	实例的生成操作，在__init__(self)之前调用
+__str__(self)	            在使用print语句时被调用，返回一个字符串
+__getitem__(self, key)	    获取序列的索引key对应的值，等价于seq[key]
+__len__(self)	            在调用内建函数len()时被调用
+__cmp__(str, dst)	        比较两个对象src和dst
+__getattr__(s, name)	    获取属性的值
+__setattr__(s, name, value)	设置属性的值
+__delattr__(s, name)	    删除属性
+__gt__(self, other)			判断self对象是否大于other对象
+__lt__(self, other)			判断self对象是否小于other对象
+__ge__(self, other)			判断self对象是否大于或等于other对象
+__le__(self, other)			判断self对象是否小于或等于other对象
+__eq__(self, other)			判断self对象是否等于other对象
+__call__(self, *args)		把实例对象作为函数调用
+
+
+6.5 初始化实例属性
+很多类一般都有初始状态的，常常定义对象的共同特性，也可以用来定义一些你希望的初始值。
+Python类中定义了一个构造函数__init__，对类中的实例定义一个初始化对象，常用于初始化类变量。
+当类被实例化，第二步自动调用的函数，第一步是__new__函数。
+__init__构造函数也可以让类传参，类似于函数的参数。
+
+__init__构造函数使用：
+#!/usr/bin/python    
+# -*- coding: utf-8 -*-
+class MyClass():
+  def __init__(self):
+    self.name = "xiaoming"
+  def func(self):
+    return self.name
+mc = MyClass()
+print mc.func()
+     
+# python test.py
+xiaoming
+
+__init__函数定义到类的开头
+self.name变量是一个实例属性，只能在类方法中使用，引用时也要这样self.name。
+
+类传参：
+#!/usr/bin/python    
+# -*- coding: utf-8 -*-
+class MyClass():
+  def __init__(self, name):
+     self.name = name
+  def func(self, age):
+     return "name: %s,age: %s" %(self.name, age)
+mc = MyClass('xiaoming')  # 第一个参数是默认定义好的传入到了__init__函数
+print mc.func('22') 
+     
+# python test.py
+Name: xiaoming, Age: 22
+
+6.6 类私有化（私有属性）
+6.6.1 单下划线
+实现模块级别的私有化，以单下划线开头的变量和函数只能类或子类才能访问。
+当from modulename import * 时将不会引入以单下划线卡头的变量和函数。
+#!/usr/bin/python    
+# -*- coding: utf-8 -*-
+class MyClass():
+   _age = 21
+   def __init__(self, name=None):
+      self._name = name
+   def func(self, age):
+      return "Name: %s, Age: %s" %(self._name, age)
+mc = MyClass('xiaoming')
+print mc.func('22')
+print mc._name
+print mc._age
+     
+# python test.py
+Name: xiaoming, Age: 22
+xiaoming
+21
+
+_age和self._name变量其实就是做了个声明，说明这是个内部变量，外部不要去引用它。
+
+6.6.2 双下划线
+以双下划线开头的变量，表示私有变量，受保护的，只能类本身能访问，连子类也不能访问。避免子类与父类同名属性冲突。
+#!/usr/bin/python    
+# -*- coding: utf-8 -*-
+class MyClass():
+   __age = 21
+   def __init__(self, name=None):
+      self.__name = name
+   def func(self, age):
+      return "Name: %s, Age: %s" %(self.__name, age)
+mc = MyClass('xiaoming')
+print mc.func('22')
+print mc.__name
+print mc.__age
+     
+# python test.py
+Name: xiaoming, Age: 22
+Traceback (most recent call last):
+ File "test.py", line 12, in <module>
+print mc.__name
+AttributeError: MyClass instance has no attribute '__name'
+
+可见，在单下划线基础上又加了一个下划线，同样方式类属性引用，出现报错。说明双下划线变量只能本身能用。
+如果想访问私有变量，可以这样：
+#!/usr/bin/python    
+# -*- coding: utf-8 -*-
+class MyClass():
+   __age = 21
+   def __init__(self, name=None):
+      self.__name = name
+   def func(self, age):
+      return "Name: %s, Age: %s" %(self.__name, age)
+mc = MyClass('xiaoming')
+print mc.func('22')
+print mc._MyClass__name
+print mc._MyClass__age
+     
+# python test.py
+Name: xiaoming, Age: 22
+xiaoming
+21
+
+self.__name变量编译成了self._MyClass__name，以达到不能被外部访问的目的，并没有真正意义上的私有。
+
+
+6.6.3 特殊属性（首尾双下划线）
+一般保存对象的元数据，比如__doc__、__module__、__name__：
+>>> class MyClass:    
+    """
+    这是一个测试类说明的类。
+    """
+    pass
+	
+# dic()返回对象内变量、方法
+>>> dir(MyClass)
+['__doc__', '__module__']
+>>> MyClass.__doc__
+'\n\t\xd5\xe2\xca\xc7\xd2\xbb\xb8\xf6\xb2\xe2\xca\xd4\xc0\xe0\xcb\xb5\xc3\xf7\xb5\xc4\xc0\xe0\xa1\xa3\n\t'
+>>> MyClass.__module__
+'__main__'
+>>> MyClass.__name__
+'MyClass'
+
+这里用到了一个新内置函数dir()，不带参数时，返回当前范围内的变量、方法的列表。
+带参数时，返回参数的属性、方法的列表。
+Python自己调用的，而不是用户来调用。像__init__ ，你可以重写。
+
+6.7 类的继承
+子类继承父类，子类将继承父类的所有方法和属性，提高代码重用。
+1）简单继承
+#!/usr/bin/python    
+# -*- coding: utf-8 -*-
+class Parent():
+   def __init__(self, name=None):
+      self.name = name
+   def func(self, age):
+      return "Name: %s, Age: %s" %(self.name, age)
+class Child(Parent):
+   pass
+mc = Child('xiaoming')
+print mc.func('22')
+print mc.name
+     
+# python test.py
+Name: xiaoming, Age: 22
+xiaoming
+
+2）子类实例初始化
+如果子类重写了构造函数，那么父类的构造函数将不会执行：
+#!/usr/bin/python    
+# -*- coding: utf-8 -*-
+class Parent():
+   def __init__(self):
+       self.name_a = "xiaoming"
+   def funcA(self):
+       return "function A: %s" % self.name_a
+class Child(Parent):
+   def __init__(self):
+       self.name_b = "zhangsan"
+   def funcB(self):
+       return "function B: %s" % self.name_b
+mc = Child()
+print mc.name_b
+print mc.funcB()
+print mc.funcA()
+     
+# python test.py
+zhangsan
+function B: zhangsan
+Traceback (most recent call last):
+ File "test2.py", line 17, in <module>
+ print mc.funcA()
+ File "test2.py", line 7, in funcA
+ return "function A: %s" % self.name_a
+AttributeError: Child instance has no attribute 'name_a'
+
+抛出错误，提示调用funcA()函数时，没有找到name_a属性，也就说明了父类的构造函数并没有执行。
+如果想解决这个问题，可通过下面两种方法：
+方法1：调用父类构造函数
+#!/usr/bin/python    
+# -*- coding: utf-8 -*-
+class Parent():
+   def __init__(self):
+      self.name_a = "xiaoming"
+   def funcA(self):
+      return "function A: %s" % self.name_a
+class Child(Parent):
+   def __init__(self):
+      Parent.__init__(self)
+      self.name_b = "zhangsan"
+   def funcB(self):
+      return "function B: %s" % self.name_b
+mc = Child()
+print mc.name_b
+print mc.funcB()
+print mc.funcA()
+     
+# python test.py
+zhangsan
+function B: zhangsan
+function A: xiaoming
+
+
+方法2：使用supper()函数继承
+#!/usr/bin/python    
+# -*- coding: utf-8 -*-
+class Parent(object):
+   def __init__(self):
+      self.name_a = "xiaoming"
+   def funcA(self):
+      return "function A: %s" % self.name_a
+class Child(Parent):
+   def __init__(self):
+      super(Child, self).__init__()
+      self.name_b = "zhangsan"
+   def funcB(self):
+      return "function B: %s" % self.name_b
+mc = Child()
+print mc.name_b
+print mc.funcB()
+print mc.funcA()
+     
+# python test.py
+zhangsan
+function B: zhangsan
+function A: xiaoming
+
+
+6.8 多重继承
+每个类可以拥有多个父类，如果调用的属性或方法在子类中没有，就会从父类中查找。多重继承中，是依次按顺序执行。
+类简单的继承：
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+class A:
+    def __init__(self):
+        self.var1 = "var1"
+        self.var2 = "var2"
+    def a(self):
+        print "a..."
+class B:
+    def b(self):
+        print "b..."
+class C(A,B):
+    pass
+c = C()
+c.a()
+c.b()
+print c.var1
+print c.var2
+ 
+# python test.py
+a...
+b...
+var1
+var2
+
+类C继承了A和B的属性和方法，就可以像使用父类一样使用它。
+子类扩展方法，直接在子类中定义即可：
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+class A:
+    def __init__(self):
+        self.var1 = "var1"
+        self.var2 = "var2"
+    def a(self):
+        print "a..."
+class B:
+    def b(self):
+        print "b..."
+class C(A,B):
+    def test(self):
+        print "test..."
+c = C()
+c.a()
+c.b()
+c.test()
+print c.var1
+print c.var2
+ 
+# python test.py
+a...
+b...
+test...
+var1
+var2
+
+在这说明下经典类和新式类。
+经典类：默认没有父类，也就是没继承类。
+新式类：有继承的类，如果没有，可以继承object。在Python3中已经默认继承object类。
+经典类在多重继承时，采用从左到右深度优先原则匹配，而新式类是采用C3算法（不同于广度优先）进行匹配。
+两者主要区别在于遍历父类算法不同，具体些请在网上查资料。
+
+
+6.9 方法重载
+直接定义和父类同名的方法，子类就修改了父类的动作。
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+class Parent():
+    def __init__(self, name='xiaoming'):
+        self.name = name
+    def func(self, age):
+        return "Name: %s, Age: %s" %(self.name, age)
+class Child(Parent):
+    def func(self, age=22):
+        return "Name: %s, Age: %s" %(self.name, age)
+mc = Child()
+print mc.func()
+ 
+# python test.py
+Name: xiaoming, Age: 22
+
+
+6.10 修改父类方法
+在方法重载中调用父类的方法，实现添加功能。
+
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+class Parent():
+    def __init__(self, name='xiaoming'):
+        self.name = name
+    def func(self, age):
+        return "Name: %s, Age: %s" %(self.name, age)
+class Child(Parent):
+    def func(self, age):
+        print "------"
+        print Parent.func(self, age)   # 调用父类方法
+        print "------"
+mc = Child()
+mc.func('22')
+# python test.py
+------
+Name: xiaoming, Age: 22
+------
+
+还有一种方式通过super函数调用父类方法：
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+class Parent():
+    def __init__(self, name='xiaoming'):
+        self.name = name
+    def func(self, age):
+        return "Name: %s, Age: %s" %(self.name, age)
+class Child(Parent):
+    def func(self, age):
+        print "------"
+        print super(Child, self).func(age)
+        print "------"
+mc = Child()
+mc.func('22')
+# python test.py
+------
+Traceback (most recent call last):
+  File "test2.py", line 15, in <module>
+    mc.func('22')
+  File "test2.py", line 11, in func
+    print super(Child, self).func(age)
+TypeError: must be type, not classobj
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

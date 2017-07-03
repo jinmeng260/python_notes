@@ -1,0 +1,228 @@
+四 Python运算符与流程控制
+
+常用的操作符
+
+4.1 基本运算符
+4.1.1 比较操作符  产生布尔值True/False
+
+== 
+!=
+>
+<
+>=
+<=
+
+4.1.2 逻辑运算符
+逻辑运算符常用于表达式判断
+and  与
+or   或
+not  非
+
+a and b #操作符判断表达式，如果a和b都为真，返回b的值，否则返回a的值。
+a or b  #操作符也是判断表达式，如果a和b都为真，返回a的值，否则返回b的值。
+类似于shell里的&&和||：
+[ 'a' == 'b' ] && echo no || echo yes
+
+not操作符用于布尔值（true和false）判断不为真，与if语句连用。
+
+4.1.3 成员运算符
+in / not in
+
+4.1.4 标识运算符
+is / is not
+
+4.2 条件判断
+4.2.1 单分支
+简写的if语句：
+>>> a = 20    
+>>> result = ("yes" if a == 20 else "no")
+>>> result
+'yes'
+     
+# 有时会看到别人代码用中括号，意思把结果存储为一个列表
+>>> result = ["yes" if a == 20 else "no"]    
+>>> result
+['yes']
+
+4.2.2 多分支
+>>> a = 20
+>>> if a < 18:
+...   print "no"
+... elif a == 20:
+...   print "yes"
+... else:
+...   print "other"
+...
+yes
+
+4.2.3 pass语句
+>>> a = 20    
+>>> if a < 18:
+...   print "no"
+... elif a == 20:
+...   pass
+... else:
+...   print "other"
+...
+
+pass语句作用是不执行当前代码块，与shell中的冒号做作用一样。
+
+4.3 循环语句
+4.3.1 for
+1）迭代对象
+遍历字符串，每个字符当做单个遍历：
+>>> for i in "abc":        
+...   print i
+
+使用range()函数生成一个数字序列列表，并遍历：
+>>> for i in range(1,5):        
+...   print i
+
+遍历字典：
+>>> d = {'a':1, 'b':2, 'c':3}        
+>>> for i in d.iteritems():
+...   print "%s:%s" %(i[0],i[1])
+
+2）嵌套循环
+逐个循环判断外层列表里元素是否存在内层列表：
+>>> for i in range(1,6):        
+...   for x in range(3,8):
+...     if i == x:
+...       print i
+
+
+3）简写语句
+简写for语句：
+>>> result = (x for x in range(5))        
+>>> result
+<generator object <genexpr> at 0x030A4FD0>
+>>> type(result)  #生成器类型对象
+<type 'generator'>
+说明：在这里用小括号，会生成一个生成器。
+         
+# 同样用中括号会以列表存储
+>>> result = [ x for x in range(5)]
+>>> type(result)
+<type 'list'>
+>>> result
+[0, 1, 2, 3, 4]
+
+for和if语句写一行：
+>>> result = [ x for x in range(5) if x % 2 == 0]        
+>>> result
+[0, 2, 4]
+
+4.3.2 while
+语法：
+while 表达式:
+    执行语句...
+	
+1）输出序列
+当条件满足时，停止循环：
+>>> while count < 5:        
+...   print count   
+...   count += 1   
+...
+
+2）死循环
+>>> import time        
+>>> i = 1
+>>> while True:     
+...   print i       
+...   i += 1         
+...   time.sleep(0.5)
+
+......   
+# 会一直循环，直到海枯石烂，天荒地老...
+注意：当表达式值为true或者非零时，都会一直循环。
+
+4.3.3 continue和break语句
+continue当满足条件时，跳出本次循环。
+break当满足条件时，跳出所有循环。
+
+for和while用法一样。
+1）基本使用
+满足条件跳出当前循环：
+#!/usr/bin/env python        
+for i in range(1,6):
+   if i == 3:
+      continue
+   else:
+      print i
+         
+#!/usr/bin/env python
+count = 0
+while count < 5:
+   count += 1
+   if count == 3:
+      continue
+   else:
+      print count
+
+满足条件终止循环：
+#!/usr/bin/env python        
+for i in range(1,6):
+   if i == 3:
+      break
+   else:
+      print i
+         
+#!/usr/bin/env python
+count = 0
+while count < 5:
+   count += 1
+   if count == 3:
+       break
+   else:
+       print count
+
+2）输入错误次数超过三次退出
+例如：提示用户输入名字，如果名字是xiaoming输入正确退出，否则一直提示重新输入，直到三次退出。
+#!/usr/bin/env python    
+count = 0
+while 1:
+  if count < 3:
+     name = raw_input("input your name: ").strip()    # .strip()去除首尾空格
+     if len(name) == 0:
+        print "Input can not be empty!"
+        count += 1
+        continue
+     elif name == "xiaoming":
+        print "OK."
+        break
+     else:
+        print "Name input error,input again!"
+        count += 1
+  else:
+     print "Error three times, Exit!"
+     break
+
+4.3.4 else语句
+else语句会在循环正常执行完才执行。在for循环用法也一样。
+>>> count = 0       
+>>> while count < 5:
+...   print count
+...   count += 1
+... else:
+...   print "end"
+...
+     
+>>> count = 0       
+>>> while count < 5:
+...   print count   
+...   break
+... else:
+...   print "end"
+
+
+
+
+
+
+
+
+
+
+
+
+

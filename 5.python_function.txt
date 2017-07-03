@@ -1,0 +1,547 @@
+五 函数
+
+函数作用：把一些复杂的代码封装起来，函数一般都是一个功能，用的时候才调用，提高重复利用率和简化程序结构。
+
+5.1 语法
+def functionName(parms1, parms2, ...):
+   code block
+   return expression
+
+5.2 函数定义与调用
+
+# 定义函数
+>>> def func():
+...   print "Hello world!"
+...   return "Hello world!" 
+...
+
+# 调用函数
+>>> func()
+
+当我们定义好函数，是不执行的，没有任何输出。当输入函数名后跟双小括号才会执行函数里写的代码。
+
+顺便说下print和return区别：
+其实在解释器下所有的结果都会输出的。
+先了解下return作用：
+结束函数，并返回一个值。如果不跟表达式，会返回一个None。
+
+#!/usr/bin/env python
+def func():
+    print "1: Hello world!"
+    return "2: Hello world!"
+func()
+
+# python test.py
+1: Hello world!
+
+print是打印对象的值
+return是返回对象的值。return默认是将对象值存储起来，要想知道里面的值，可以用print可以打印。
+#!/usr/bin/env python
+def func():
+    print "1: Hello world!"
+    return "2: Hello world!"
+print func()
+# python test.py
+1: Hello world!
+2: Hello world!
+
+定义一个函数是不需要打印的，而是交给其他代码去处理这个函数返回值。
+
+5.3 函数参数
+5.3.1 接受参数
+>>> def func(a, b):    
+...   print a + b
+...
+
+>>> func(1, 2)
+3
+
+不想一一对应传参，可以指定参数值：	
+>>> def func(a,b):    
+...   print a + b
+...
+
+>>> func(b=2,a=1)
+3
+	
+5.3.2 函数参数默认值
+参数默认值是预先定义好，如果调用函数时传入了这个值，那么将以传入的为实际值，否则是默认值。	
+>>> def func(a, b=2):    
+...   print a + b
+...
+
+>>> func(1)
+3
+
+>>> func(1, 3)
+4	
+	
+5.3.3 接受任意数量参数
+上面方式固定了参数多个，当不知道多少参数时候可以用以下方式。
+单个星号使用：	
+>>> def func(*a):         
+...   print a
+...
+>>> func(1,2,3)
+(1, 2, 3)
+
+单个星号存储为一个元组。
+
+两个星号使用：
+>>> def func(**a):    
+...   print a
+...
+
+>>> func(a=1, b=2, c=3)
+{'a': 1, 'c': 3, 'b': 2}
+
+两个星号存储为一个字典。可见它们都是以数组的形式传入。
+
+函数参数（*args, **kwargs），与上面只是名字不一样罢了
+>>> def func(*args, **kwargs):    
+...   print args
+...   print kwargs
+...
+
+>>> func(1,2,3,a=1,b=2,c=3)
+(1, 2, 3)
+{'a': 1, 'c': 3, 'b': 2}
+
+>>> def func(a, b, *c):    
+...   print a + b
+...   print c
+...
+
+>>> func(1,2,3,5,6)
+3
+(3, 5, 6)
+
+>>> def func(a, b, **c):
+...   print a + b
+...   print c
+...
+
+>>> func(1,2,c=3,d=4,e=5)
+3
+{'c': 3, 'e': 5, 'd': 4}
+
+5.4 变量的作用域
+限制一个变量或一段代码可用范围，不在这个范围就不可用。提高了程序逻辑的局部性，减少名字冲突。
+作用域范围一般是：全局（global）->局部（local）->内置（build-in）
+先看看全局和局部变量：
+>>> a = 2
+>>> def func():
+...   b = 3
+...
+>>> a
+2
+
+a变量的作用域是整个代码中有效，称为全局变量，也就是说一段代码最开始定义的变量。
+b变量的作用域在函数内部，也就是局部变量，在函数外是不可引用的。
+
+这么一来，全局变量与局部变量即使名字一样也不冲突。
+如果函数内部的变量也能在全局引用，需要使用global声明：
+>>> def func():
+...   global b
+...   b = 3
+...
+>>> b
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'b' is not defined
+>>> func()
+>>> b
+3
+
+当函数没引用使用，里面的代码块是没有解释的。
+使用global声明变量后外部是可以调用函数内部的变量的。
+
+
+5.5 嵌套函数
+1）不带参数
+>>> def func():
+...   x = 2
+...   def func2():
+...     return x
+...   return func2  # 返回func2函数
+...
+
+>>> func()()
+2
+
+>>> func2()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'func2' is not defined
+
+>>> def func():   
+...   x = 2         
+...   global func2
+...   def func2():
+...     return x 
+...   return func2
+...
+>>> func()()
+2
+>>> func2()
+2
+
+内层函数可以访问外层函数的作用域。
+内嵌函数只能被外层函数调用，但也可以使用global声明全局作用域。
+调用内部函数的另一种用法：
+
+2）带参数
+>>> def func(a):
+...   def func2(b):
+...     return a * b
+...   return func2
+...
+
+>>> f = func(2)   # 变量指向函数。是的，变量可以指向函数。
+>>> f(5)
+10
+
+>>> func(2)(5)
+10
+
+内层函数可以访问外层函数的作用域 。但变量不能重新赋值，举例说明：
+>>> def func():
+...   x = 2
+...   def func2():
+...      x = 3
+...   func2()
+...   return x
+...
+>>> func()
+2
+>>> def func():
+...   x = 2
+...   def func2():
+...     x += 1
+...   func2()
+...   return x
+...
+>>> func()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "<stdin>", line 5, in func
+  File "<stdin>", line 4, in func2
+UnboundLocalError: local variable 'x' referenced before assignment
+
+5.6 闭包
+“官方”的解释是：所谓“闭包”，指的是一个拥有许多变量和绑定了这些变量的环境的表达式（通常是一个函数），因而这些变量也是该表达式的一部分。
+其实，上面嵌套函数就是闭包一种方式：
+>>> def func(a):
+...   def func2(b):
+...     return a * b
+...   return func2
+...
+>>> f = func(2)   # 变量指向函数。是的，变量可以指向函数。
+>>> f(5)
+10
+func是一个函数，里面又嵌套了一个函数func2，外部函数传过来的a参数，这个变量会绑定到函数func2。
+func函数以内层函数func2作为返回值，然后把func函数存储到f变量中。当外层函数调用内层函数时，内层函数才会执行（func()()），就创建了一个闭包。
+
+5.7 高阶函数
+高阶函数是至少满足这两个任意中的一个条件：
+1) 能接受一个或多个函数作为输入。
+2）输出一个函数。
+abs、map、reduce都是高阶函数
+
+其实，上面所讲的嵌套函数也是高阶函数。
+
+5.8 函数装饰器
+装饰器（decorator）本身是一个函数，包装另一个函数或类，它可以让其他函数在不需要改动代码情况下动态增加功能，装饰器返回的也是一个函数对象。
+先举一个例子，说明下装饰器的效果，定义两个函数，分别传参计算乘积：
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+def f1(a, b):
+    print "f1 result: " + str(a * b)
+def f2(a, b):
+    print "f2 result: " + str(a * b)
+f1(1, 2)
+f2(2, 2)
+
+# python test.py
+f1 result: 2
+f2 result: 4
+跟预期的那样，打印出了乘积。
+如果我想给这两个函数加一个打印传入的参数，怎么办，应该这样：
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+def f1(a, b):
+    print "f1 parameter: %d %d" %(a, b)
+    print "f1 result: " + str(a * b)
+def f2(a, b):
+    print "f2 parameter: %d %d" %(a, b)
+    print "f2 result: " + str(a * b)
+f1(1, 2)
+f2(2, 2)
+
+# python test.py
+f1 parameter: 1 2
+f1 result: 2
+f2 parameter: 2 2
+f2 result: 4
+
+按照所想的打印了传入的参数，有没有方法能更简洁点呢，来看看装饰器后的效果。
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+def deco(func):
+    def f(a, b):
+        print "%s parameter: %d %d" %(func.__name__, a, b)
+        return func(a, b)
+    return f
+@deco
+def f1(a, b):
+    print "f1 result: " + str(a * b)
+@deco
+def f2(a, b):
+    print "f2 result: " + str(a * b)
+f1(1, 2)
+f2(2, 2)
+
+# python test.py
+f1 parameter: 1 2
+f1 result: 2
+f2 parameter: 2 2
+f2 result: 4
+
+5.8.1 无参数装饰器
+方式1：函装饰器函数装饰函数    
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+def deco(func):
+    return func
+def f1():
+    print "Hello world!"
+myfunc = deco(f1)
+myfunc()  
+
+# python test.py
+Hello world!
+ 
+方式2：使用语法糖"@"来装饰函数
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+def deco(func):
+    return func
+@deco
+def f1():  
+    print "Hello world!"
+f1()
+
+# python test.py
+Hello world!
+
+方式1是将一个函数作为参数传给装饰器函数。
+方式2使用了语法糖，也实现同样效果。
+方式1需要每次使用装饰器时要先变量赋值下，而方式2使用装饰器时直接用语法糖"@"引用，会显得更方便些，实际代码中一般也都是用语法糖。
+   
+   
+2）带参数装饰器   
+#!/usr/bin/python    
+# -*- coding: utf-8 -*-
+def deco(func):
+    def f(a, b):
+        print "function name: %s" % func.__name__   # __name__属性是获取函数名，为了说明执行了这个函数
+        return func(a, b)   # 用接受过来的func函数来处理传过来的参数
+    return f
+@deco
+def f1(a, b):
+    print "Hello world!"
+    print a + b
+f1(2, 2)
+
+# python test.py
+function name: f1
+Hello world!
+4
+
+3）不固定参数
+#!/usr/bin/python    
+# -*- coding: utf-8 -*-
+def log(func):
+    def deco(*args, **kwargs):
+        print "function name: %s" % func.__name__
+        return func(*args, **kwargs)
+    return deco
+@log
+def f1(a, b):
+    print "f1() run."
+    print a + b
+f1(1,2)
+
+# python test.py
+function name: f1
+f1() run.
+3
+
+4）装饰器加参数
+#!/usr/bin/python    
+# -*- coding: utf-8 -*-
+# 三层函数，调用log函数返回deco函数，再调用返回的函数deco，则返回值是_deco函数
+def log(arg):
+    def deco(func):
+        def _deco(*args, **kwargs):
+            print "%s - function name: %s" % (arg, func.__name__)  
+            return func(*args, **kwargs)
+        return _deco
+    return deco
+@log("info")
+def f1(a, b):
+    print "f1() run."
+    print a + b
+f1(1,2)
+
+# python test.py
+info - function name: f1
+f1() run.
+3
+
+#!/usr/bin/python    
+# -*- coding: utf-8 -*-
+# 三层函数，调用log函数返回deco函数，再调用返回的函数deco，则返回值是_deco函数
+def log(arg):
+    def deco(func):
+        def _deco(*args, **kwargs):
+            print "%s - function name: %s" % (arg, func.__name__)  
+            return func(*args, **kwargs)
+        return _deco
+    return deco
+@log("info")
+def f1(a, b):
+    print "f1() run."
+    print a + b
+f1(1,2)
+
+# python test.py
+info - function name: f1
+f1() run.
+3
+
+可以看出装饰器处理方式满足了高阶函数的条件，所以装饰器也是一种高阶函数。
+优点：灵活给装饰器增加功能，而不修改函数，提高代码可重复利用性，增加可读性。
+
+5.9 匿名函数
+匿名函数：定义函数的一种形式，无需定义函数名和语句块，因此代码逻辑会受到局限，同时也减少代码量，增加可读性。
+在Python中匿名函数是lambda。
+
+举例子说明def关键字与lambda函数定义函数区别：
+# 普通函数
+>>> def func():
+...   return "Hello world!"
+...
+>>> func()
+>>> def func(a, b):
+...   return a * b
+...
+>>> func(2, 2)
+4
+ 
+# 匿名函数
+>>> f = lambda:"Hello world!"
+>>> f()
+'Hello world!'
+>>> f = lambda a, b: a * b   # 冒号左边是函数参数，右边是返回值
+>>> f(2, 2)
+4
+
+lambda函数一行就写成一个函数功能，省去定义函数过程，让代码更加精简
+
+5.10 内置高阶函数
+5.10.1 map()
+语法：map(function, sequence[, sequence, ...]) -> list
+将序列中的元素通过函数处理返回一个新列表。
+例如：
+>>> lst = [1,2,3,4,5]    
+>>> map(lambda x:str(x)+".txt", lst)
+['1.txt', '2.txt', '3.txt', '4.txt', '5.txt']   
+   
+5.10.2 filter()
+语法：filter(function or None, sequence) -> list, tuple, or string
+将序列中的元素通过函数处理返回一个新列表、元组或字符串。
+例如：过滤列表中的奇数
+>>> lst = [1,2,3,4,5]    
+>>> filter(lambda x:x%2==0, lst)
+[2, 4]
+
+5.10.3 reduce()
+语法：reduce(function, sequence[, initial]) -> value
+reduce()是一个二元运算函数，所以只接受二元操作函数。
+例如：计算列表总和
+>>> lst = [1,2,3,4,5]    
+>>> reduce(lambda x,y:x+y, lst)
+15
+
+先将前两个元素相加等于3，再把结果与第三个元素相加等于6，以此类推。这就是reduce()函数功能。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

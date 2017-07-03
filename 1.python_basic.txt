@@ -1,0 +1,252 @@
+第一章 python基础0703
+
+1.1 介绍
+1.1.1 特点
+Python是一种面向对象、解释型计算机程序设计语言。语法简洁清晰，强制用空白符作为语句缩进。
+Python具有丰富和强大的库，又被称为胶水语言。能把其他语言（主要C/C++）写的模块很轻松的结合在一起。
+
+1.1.2 应用领域
+Web网站：有很多优秀的开源Web框架，比如Django（最流行）、Tornado（轻量级、异步）、Flask（微型）、Web.py（简单）等。
+数据采集：有好用的http库，比如urllib2、requests等。还有高级的屏幕爬取及网页采集框架scrapy。
+		  并对网页解析也有很多库，比如lxml、xpath、BeautifulSoup等。    
+大数据分析：常用模块有Numpy、Pandas。并支持写MapReduce、PySpark处理Spark RDD（弹性分布式数据集）。
+运维自动化：编写脚本、Web平台，自动化日常工作。
+科学计算：在科学计算也应用越来越广泛，常用的模块有Numpy、SciPy。
+
+1.1.3 为什么选择Python？
+运维的目的呢，主要还是学习Python用来实现运维自动化了。
+
+1) 语法简洁，易于学习。
+2) 广泛的标准库，适合快速开发，不就追求极快处理速度。
+3) 跨平台，基本所有的所有的操作系统都能运行。
+4) 运维领域Python最流行。
+
+1.2 安装Python
+操作系统采用CentOS6.5，默认安装了Python2.6.6，那我们升级到Python2.7最新版Python2.7.12
+1. 安装Python2.7
+wget https://www.python.org/ftp/python/2.7.12/Python-2.7.12.tgz
+tar zxvf Python-2.7.12.tgz
+cd Python-2.7.12
+./configure
+make && make install
+mv /usr/bin/python /usr/bin/python2.6.6
+ln -s /usr/local/bin/python2.7 /usr/bin/python
+python -V
+
+注意：软链接指向Python2.7版本后，yum将不能正常工作:
+sed -i '1s/$/2.6.6/' /usr/bin/yum
+
+2. 安装setuptools
+yum install python-devel zlib-devel openssl-devel -y
+wget https://pypi.python.org/packages/32/3c/e853a68b703f347f5ed86585c2dd2828a83252e1216c1201fa6f81270578/setuptools-26.1.1.tar.gz
+tar zxvf setuptools-26.1.1.tar.gz 
+cd setuptools-26.1.1
+python setup.py install
+
+解决方法，进入刚解压的Python2.7目录重新编译安装:
+cd ../Python-2.7.12
+make && make install
+python setup.py install
+
+3. 安装pip2.7
+wget https://pypi.python.org/packages/e7/a8/7556133689add8d1a54c0b14aeff0acb03c64707ce100ecd53934da1aa13/pip-8.1.2.tar.gz
+tar zxvf pip-8.1.2.tar.gz
+cd pip-8.1.2
+python setup.py install
+
+
+1.3 解释器
+1.3.1 Python解释器几种实现版本
+1) CPython     
+当我们装完Python后，其默认解释就是CPython，也是官方默认解释器。CPython是C语言写的，当执行代码时会将代码转化成字节码（ByteCode）。
+2) IPython
+基于CPython之上的一个交互式解释器，相当于默认解释器的一个增强版，最显著的功能就是自动补全，挺好用的。
+3) PyPy
+PyPy本身是由Python编写的，使用了JIT编译器（即时编译器）技术，当执行代码时JIT编译器将代码翻译成机器码。性能相比CPython要好。JAVA也采用了JIT编译器。
+4) Jython
+Jython是由JAVA编写的一个解释器，可以把JAVA模块加载到Python的模块中使用，也可以把Python代码打包成JAR包，意味着允许用Python写JAVA程序了。
+当执行代码时会将代码转化成JAVA字节码，然后使用JRE（Java Runtime Environment）执行。
+5) IronPython
+在.NET平台上工作的Python语言。
+
+1.3.2 Python代码执行过程
+大致流程：
+源代码编译成字节码（.pyc文件）
+--> Python虚拟机 
+--> 执行编译好的字节码 
+--> Python虚拟机将字节码翻译成对应的机器指令（机器码）
+运行Python程序时，先编译成字节码并保存到内存中，当程序运行结束后，Python解释器将内存中字节码对象写到.pyc文件中。
+第二次再运行此程序时，先回从硬盘中寻找.pyc文件，如果找到，则直接载入，否则就重复上面的过程。
+这样好处是，不重复编译，提供执行效率。
+
+1) 字节码
+字节码是一种包含执行程序、由一序列op代码/数据对组成的二进制文件。字节码是一种中间码，比机器码更抽象。
+
+2) 机器码
+机器码是一种指令集，让CPU可直接解读的数据。也称为原生码。
+
+1.4 代码规范化
+个人觉得有以下几个作用：
+1) 团队协作     
+2) 有利于解决问题
+3) 未雨绸缪
+
+1.4.2 编写代码怎么能更规范化？
+1) 缩进
+Python以空白符作为语句缩进，意味着语句没有结尾符，刚入门的朋友往往因为上下逻辑代码不对齐导致运行报错，在Python中最好以4个空格作为缩进符，严格对齐。
+2) 代码注释
+据说优质的代码，注释说明要比代码量多，详细的代码说明不管是对自己还是对他人，在后期维护中都是非常有利的。
+就像一个流行的开源软件，如果没有丰富的使用文档，你认为会有多少人耐心的去花大把的时间研究它呢！
+3) 空格使用
+在操作符两边，以及逗号后面，加1个空格。但是在括号左右不加空格。
+在函数、类、以及某些功能代码块，空出一行，来分隔它们。
+4) 命名
+模块：自己写的模块，文件名全部小写，长名字单词以下划线分隔。
+类：大/小驼峰命名。我一般采用大驼峰命名，也就是每个单词首字母大写。类中私有属性、私有方法，以双下划线作为前缀。
+函数：首单词小写，其余首字母大写。
+变量：都小写，单词以下划线分隔。
+需要注意的是：所有的命名规则必须能简要说明此代码意义。
+5) 代码换行
+按照语法规则去换行，比如一个很长的表达式，可以在其中某个小表达式两边进行换行，而不是将小表达式拆分，这样更容易阅读。
+
+1.5 交互式解释器
+直接执行Python命令就启动默认的CPython解释器：
+配置自动补全：
+# pip2.7 install readline
+# pip2.7 install rlcompleter2
+>>> import readline, rlcompleter
+>>> readline.parse_and_bind("tab: complete")
+
+1.6 运算操作符  
++ 加法
+>>> print 5 + 3
+
+- 减法
+>>> print 5 - 3
+
+* 乘法
+>>> print 5 * 3
+
+乘法还可以连续输出多少个字符：
+>>> print '#'*3
+
+/ 除法
+>>> print 5 / 3
+
+% 取余/模 >>> print 5 % 3
+
+** 指数/幂 >>> print 5 ** 3
+
+1.7 赋值操作符
+= 变量赋值
+a = b + c
+
++= 加法
+a += b 等同于 a = a + b
+
+-= 减法
+a -= b 等同于 a = a - b
+
+*= 乘法
+a *= b 等同于 a = a * b
+
+/= 除法
+a /= b 等同于 a = a / b
+
+%= 模
+a %= b 等同于 a = a % b
+
+**= 指数/幂
+a **= b 等同于 a = a ** b
+
+
+1.8 变量
+1.8.1 变量赋值
+>>> xxoo = 2    
+
+说明：等号左边是变量名，等号右边是值
+# 多重赋值
+>>> xx, oo = 1, 2
+
+>>> xx = oo = 2
+
+1. 8.2 变量引用
+Python引用变量不用加$什么特殊字符，不像Shell、PHP那样，还要加$。
+直接用变量名即是引用，下面说一种常用的字符串格式输出时引用变量的方法。
+>>> xxoo = 2    
+>>> print "xxoo: %d" % xxoo
+xxoo: 2
+>>> xxoo = "xo"
+>>> print "xxoo: %s" % xxoo
+xxoo: xo
+>>> x = "abc"
+>>> o = 123
+>>> print "str: %s, int: %d" %(x, o)  
+str: abc, int: 123
+说明：双引号里面%操作符算是一个占位符，d代表数字，s代表字符串。
+双引号外面%加上后面的变量名对应里面的第一个%。下面同时引用了两个变量，外面%()里变量名位置对应双引号里面的%位置。
+
+1.8.3 局部变量
+
+1.8.4 全局变量
+>>> global xxoo   # 声明为全局变量    
+
+1.9 转义字符（列出一些常用的）
+
+\  #字符串太长，换一行接着输入
+\'   \"  #单引号和双引号
+\r #光标
+\t #横向制表符（tab键）
+\v  #纵向制表符
+\n  #换行符，打印到下一行
+
+如果不想让转义字符生效，可以用r指定显示原始字符串：
+>>> print r"Hello \nWorld!"
+
+1.10 获取用户输入
+1.10.1 raw_input()
+>>> name = raw_input("My name is: ")    
+My name is: xiaoming
+
+1.10.2 input()
+>>> name = input("My name is: ")
+My name is: 'jinmax' 
+
+1.10.3 raw_input()与input()函数区别
+    
+raw_input()把任何输入的都转成字符串存储。
+而input()接受输入的是一个表达式，需要带引号。
+
+1.11 运行第一个程序
+#!/usr/bin/env python  #env会自动寻找python解释器的绝对路径
+print "Hello World!"
+ 
+# python test.py
+Hello World!
+
+----
+#!/usr/bin/env python
+name = raw_input("My name is: ")
+print name
+ 
+# python test.py
+My name is: xiaoming
+xiaoming
+
+1.12 注释
+单行注释："#"开头
+多行注释：三单引号或三双引号
+
+#!/usr/bin/env python    
+# -*- coding: utf-8 -*-   # 设置解释器默认编码
+# 单行注释
+'''
+多行注释
+多行注释
+'''
+"""
+多行注释
+多行注释
+"""
+
+
