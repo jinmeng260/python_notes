@@ -452,6 +452,7 @@ class Child(Parent):
         print "------"
 mc = Child()
 mc.func('22')
+
 # python test.py
 ------
 Traceback (most recent call last):
@@ -461,10 +462,230 @@ Traceback (most recent call last):
     print super(Child, self).func(age)
 TypeError: must be type, not classobj
 
+抛出错误，因为super继承只能用于新式类，用于经典类就会报错。
 
------
-thinkspad上：
------
+那我们就让父类继承object就可以使用super函数了：
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+class Parent(object):
+    def __init__(self, name='xiaoming'):
+        self.name = name
+    def func(self, age):
+        return "Name: %s, Age: %s" %(self.name, age)
+class Child(Parent):
+    def func(self, age):
+        print "------"
+        print super(Child, self).func(age)   # 调用父类方法。在Python3中super参数可不用写。
+        print "------"
+mc = Child()
+mc.func('22')
+ 
+# python test.py
+------
+Name: xiaoming, Age: 22
+------
+
+6.11 属性访问的特殊方法
+有四个可对类对象增删改查的内建函数，分别是getattr()、hasattr()、setattr()、delattr()。
+
+6.11.1 getattr()
+返回一个对象属性或方法。
+>>> class A:    
+...   def __init__(self):
+...     self.name = 'xiaoming'
+...   def method(self):
+...     print "method..."
+...
+>>> c = A()
+>>> getattr(c, 'name', 'Not find name!')   #获得c的属性
+'xiaoming'
+
+>>> getattr(c, 'method', 'Not find method!')  #c的方法属性
+<bound method A.method of <__main__.A instance at 0x93fa70>>
+>>> getattr(c, 'methoda', 'Not find method!')  #没找到相应属性
+'Not find method!'
+
+6.11.2 hasattr()
+判断一个对象是否具有属性或方法。返回一个布尔值。
+>>> hasattr(c, 'name')    
+True
+>>> hasattr(c, 'namea')
+False
+>>> hasattr(c, 'method')
+True
+>>> hasattr(c, 'methoda')
+False
+
+6.11.3 setattr()
+给对象属性重新赋值或添加。如果属性不存在则添加，否则重新赋值。
+>>> hasattr(c, 'age')    
+False
+>>> setattr(c, 'age', 22)
+>>> c.age
+22
+>>> hasattr(c, 'age')
+True
+
+6.11.4 delattr()
+删除对象属性。
+>>> delattr(c, 'age')    
+>>> hasattr(c, 'age')             
+False
+
+6.12 类装饰器
+与函数装饰器类似，不同的是类要当做函数一样调用：
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+class Deco:
+    def __init__(self, func):
+       self._func = func
+       self._func_name = func.__name__
+    def __call__(self):
+       return self._func(), self._func_name
+@Deco
+def f1():
+    return "Hello world!"
+print f1()
+ 
+# python test.py
+('Hello world!', 'f1')
+
+
+6.13 类内置装饰器
+下面介绍类函数装饰器
+
+6.10.1 @property
+@property属性装饰器的基本功能是把类中的方法当做属性来访问。
+使用属性装饰器就可以像属性那样访问了：
+>>> class A:    
+...     def __init__(self, a, b):
+...       self.a = a
+...       self.b = b
+...     @property
+...     def func(self):
+...       print self.a + self.b
+...
+>>> c = A(2,2)
+>>> c.func
+4
+>>> c.func()
+4
+Traceback (most recent call last):
+ File "<stdin>", line 1, in <module>
+TypeError: 'NoneType' object is not callable
+
+6.10.2 @staticmethod
+@staticmethod是静态方法装饰器，可以通过类对象访问，也可以通过实例化后类对象实例访问。
+实例方法的第一个参数是self，表示是该类的一个实例，称为类对象实例。
+而使用静态方法装饰器，第一个参数就不用传入实例本身（self），那么这个方法当做类对象，由Python自身处理。
+看看普通方法的用法：
+>>> class A:                         
+...   def staticMethod(self):   
+...      print "not static method..."
+...
+>>> c = A()         
+>>> c.staticMethod()
+not static method...
+
+使用静态方法则是这么用：
+>>> class A:                       
+...   @staticmethod             
+...   def staticMethod():       
+...     print "static method..."
+...
+>>> A.staticMethod()   # 可以通过类调用静态方法
+static method...
+>>> c = A()   
+>>> c.staticMethod()   # 还可以使用普通方法调用
+static method...
+
+静态方法和普通的非类方法作用一样，只不过命名空间是在类里面，必须通过类来调用。一般与类相关的操作使用静态方法。
+
+6.10.3 @classmethod
+@classmethod是类方法装饰器，与静态方法装饰器类似，也可以通过类对象访问。主要区别在于类方法的第一个参数要传入类对象（cls）。
+>>> class A:                       
+...   @classmethod             
+...   def classMethod(cls):   
+...     print "class method..."
+...     print cls.__name__
+...
+>>> A.classMethod()
+class method...
+A
+
+6.14 __call__方法
+可以让类中的方法像函数一样调用。
+>>> class A:
+...   def __call__(self, x): 
+...     print "call..."
+...     print x
+...
+>>> c = A()
+>>> c(123)
+call...
+123
+>>> class A:
+...   def __call__(self, *args, **kwargs):
+...      print args
+...      print kwargs
+...
+>>> c = A()
+>>> c(1,2,3,a=1,b=2,c=3)
+(1, 2, 3)
+{'a': 1, 'c': 3, 'b': 2}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
