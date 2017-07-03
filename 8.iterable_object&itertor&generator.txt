@@ -1,1 +1,270 @@
+第八章 Python可迭代对象、迭代器和生成器
+
+8.1 可迭代对象（Iterable）
+大部分对象都是可迭代，只要实现了__iter__方法的对象就是可迭代的。
+__iter__方法会返回迭代器（iterator）本身，例如：
+>>> lst = [1,2,3]
+>>> lst.__iter__()
+<listiterator object at 0x7f97c549aa50>
+
+Python提供一些语句和关键字用于访问可迭代对象的元素，比如for循环、列表解析、逻辑操作符等。
+判断一个对象是否是可迭代对象：
+>>> from collections import Iterable  # 只导入Iterable方法
+>>> isinstance('abc', Iterable)     
+True
+>>> isinstance(1, Iterable)     
+False
+>>> isinstance([], Iterable)
+True
+
+isinstance()函数用于判断对象类型
+可迭代对象一般都用for循环遍历元素。
+例如，遍历列表：
+>>> lst = [1, 2, 3]
+>>> for i in lst:
+...   print i
+
+
+8.2 迭代器（Iterator）
+具有next方法的对象都是迭代器。在调用next方法时，迭代器会返回它的下一个值。如果next方法被调用，但迭代器没有值可以返回，就会引发一个StopIteration异常。
+使用迭代器的好处：
+1）如果使用列表，计算值时会一次获取所有值，那么就会占用更多的内存。而迭代器则是一个接一个计算。
+2）使代码更通用、更简单。
+
+8.2.1 迭代器规则
+回忆下在Python数据类型章节讲解到字典迭代器方法，来举例说明下迭代器规则：
+>>> d = {'a':1, 'b':2, 'c':3}    
+>>> d.iteritems()
+<dictionary-itemiterator object at 0x7f97c3b1bcb0>
+
+# 判断是否是迭代器
+>>> from collections import Iterator
+>>> isinstance(d, Iterator)
+False
+>>> isinstance(d.iteritems(), Iterator)
+True
+
+# 使用next方法。
+>>> iter_items = d.iteritems()
+>>> iter_items.next()
+('a', 1)
+
+字典是无序的，所以显示的是无序的，实际是按照顺序获取的下一个元素。
+
+8.2.2 iter()函数
+使用iter()函数转换成迭代器：
+语法：
+iter(collection) -> iterator
+iter(callable, sentinel) -> iterator
+
+>>> iter_lst = iter(lst)             
+>>> isinstance(iter_lst, Iterator)
+True
+>>> iter_lst.next()
+1
+
+8.2.3 itertools模块
+itertools模块是Python内建模块，提供可操作迭代对象的函数。可以生成迭代器，也可以生成无限的序列迭代器。
+有下面几种生成无限序列的方法：
+count([n]) --> n, n+1, n+2, ...
+cycle(p) --> p0, p1, ... plast, p0, p1, ...
+repeat(elem [,n]) --> elem, elem, elem, ... endlessly or up to n times 
+
+也有几个操作迭代器的方法：
+islice(seq, [start,] stop [, step]) --> elements from
+chain(p, q, ...) --> p0, p1, ... plast, q0, q1, ...
+groupby(iterable[, keyfunc]) --> sub-iterators grouped by value of keyfunc(v) 
+imap(fun, p, q, ...) --> fun(p0, q0), fun(p1, q1), ...
+ifilter(pred, seq) --> elements of seq where pred(elem) is True
+
+1）count生成序列迭代器
+>>> from itertools import *  # 导入所有方法    
+# 用法 count(start=0, step=1) --> count object
+>>> counter = count()    
+>>> counter.next()
+0
+
+可以使用start参数设置开始值，step设置步长。
+
+2）cycle用可迭代对象生成迭代器
+# 用法 cycle(iterable) --> cycle object
+>>> i = cycle(['a', 'b', 'c'])  
+>>> i.next()
+'a'
+>>> i.next()
+'b'
+>>> i.next()
+'c'
+
+3）repeat用对象生成迭代器
+# 用法 repeat(object [,times]) -> create an iterator which returns the object，就是任意对象    
+>>> i = repeat(1)
+>>> i.next()
+1
+
+
+4）islice用可迭代对象并设置结束位置
+# 用法 islice(iterable, [start,] stop [, step]) --> islice object    
+>>> i = islice([1,2,3],2)   
+>>> i.next()             
+1
+
+5）chain用多个可迭代对象生成迭代器
+# 用法 chain(*iterables) --> chain object    
+>>> i = chain('a','b','c')
+>>> i.next()
+'a'
+>>> i.next()
+'b'
+>>> i.next()
+'c'
+
+6）groupby将可迭代对象中重复的元素挑出来放到一个迭代器中
+# 用法 groupby(iterable[, keyfunc]) -> create an iterator which returns    
+>>> for key,group in groupby('abcddCca'):
+...   print key,list(group)               
+...
+a ['a']
+b ['b']
+c ['c']
+d ['d', 'd']
+C ['C']
+c ['c']
+a ['a']
+
+groupby方法是区分大小写的，如果想把大小写的都放到一个迭代器中，可以定义函数处理下：
+>>> for key,group in groupby('abcddCca', lambda c: c.upper()):    
+...   print key, list(group)
+...
+A ['a']
+B ['b']
+C ['c']
+D ['d', 'd']
+C ['C', 'c']
+A ['a']
+
+7）imap用函数处理多个可迭代对象
+# 用法 imap(func, *iterables) --> imap object    
+>>> a = imap(lambda x, y: x * y,[1,2,3],[4,5,6])   
+>>> a.next()
+4
+>>> a.next()
+10
+>>> a.next()
+18
+
+8)ifilter过滤序列
+# 用法 ifilter(function or None, sequence) --> ifilter object    
+>>> i = ifilter(lambda x: x%2==0,[1,2,3,4,5])
+>>> for i in i:
+...   print i
+...
+2
+4
+
+当使用for语句遍历迭代器时，步骤大致这样的，先调用迭代器对象的__iter__方法获取迭代器对象，再调用对象的__next__()方法获取下一个元素。
+最后引发StopIteration异常结束循环。
+
+8.3 生成器（Generator）
+什么是生成器？
+1）任何包含yield语句的函数都称为生成器。
+2）生成器都是一个迭代器，但迭代器不一定是生成器。
+
+8.3.1 生成器函数
+在函数定义中使用yield语句就创建了一个生成器函数，而不是普通的函数。
+当调用生成器函数时，每次执行到yield语句，生成器的状态将被冻结起来，并将结果返回__next__调用者。
+冻结意思是局部的状态都会被保存起来，包括局部变量绑定、指令指针。
+确保下一次调用时能从上一次的状态继续。
+
+以生成斐波那契数列举例说明yield使用：
+斐波那契（Fibonacci）数列是一个简单的递归数列，任意一个数都可以由前两个数相加得到。
+
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+def fab(max):
+    n, a, b = 0, 0, 1
+    while n < max:
+        print b
+        a, b = b, a + b
+        n += 1
+fab(5)
+
+使用yied语句，只需要把print b改成yield b即可：
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+def fab(max):
+    n, a, b = 0, 0, 1
+    while n < max:
+        yield b
+        # print b
+        a, b = b, a + b
+        n += 1
+print fab(5)
+
+调用fab函数不会执行fab函数，而是直接返回了一个生成器对象，
+上面说过生成器就是一个迭代器。那么就可以通过next方法来返回它下一个值。
+>>> import test
+>>> f = test.fab(5)   
+>>> f.next()       
+1
+
+每次fab函数的next方法，就会执行fab函数，执行到yield b时，fab函数返回一个值，下一次执行next方法时，代码从yield b的吓一跳语句继续执行，直到再遇到yield。
+
+8.3.2 生成器表达式
+简化for和if语句，使用小括号()返回一个生成器，中括号[]生成一个列表。
+# 生成器表达式
+>>> result = (x for x in range(5))
+>>> result
+<generator object <genexpr> at 0x030A4FD0>
+>>> type(result)
+<type 'generator'>
+
+# 列表解析表达式
+>>> result = [ x for x in range(5)]
+>>> type(result)
+<type 'list'>
+>>> result
+[0, 1, 2, 3, 4]
+
+第一个就是生成器表达式，返回的是一个生成器，就可以使用next方法，来获取下一个元素：
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
