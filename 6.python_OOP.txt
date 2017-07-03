@@ -462,6 +462,10 @@ Traceback (most recent call last):
 TypeError: must be type, not classobj
 
 
+-----
+thinkspad上：
+-----
+
 
 
 
